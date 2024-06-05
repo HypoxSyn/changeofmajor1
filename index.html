@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Example</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select {
+            width: calc(100% - 10px);
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="date"] {
+            width: calc(100% - 10px);
+            margin-bottom: 10px;
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 3px;
+            background-color: #007bff;
+            color: #fff;
+            cursor: pointer;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        #finalForm {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <form id="inputForm">
+        <center>Student Change of Major Form </center>
+        <label for="firstname">First Name</label>
+        <input type="text" id="firstname" name="firstname"><br>
+      
+        <label for="lastname">Last Name</label>
+        <input type="text" id="lastname" name="lastname"><br>
+
+        <label for="semester">Semester</label>
+        <select name="semester" id="semester">
+            <option value="Summer">Summer</option>
+            <option value="Fall">Fall</option>
+            <option value="Spring">Spring</option>
+        </select><br>
+      
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date"><br>
+
+        <label for="program">Program</label>
+        <select name="program" id="program">
+            <option value="Arts, Humanities, and Social Sciences">Arts, Humanities, and Social Sciences (AHSS) </option>
+            <option value="Business, Technology, and Public Service">Business, Technology, and Public Service (BTPS)</option>
+            <option value="Health Sciences">Health Sciences (HS)</option>
+            <option value="Science, Engineering, and Math">Science, Engineering, and Math (SEM)</option>
+            <option value="Technical and Professional Studies">Technical and Professional Studies (TPS)</option>
+        </select><br>
+      
+        <label for="major">Major</label>
+        <select name="major" id="major"></select><br>
+      
+        <label for="teamchange">Team Changed?</label>
+        <select name="teamchange" id="teamchange">
+            <option value="Yes">Yes</option>
+            <option value="No">No</option>
+        </select>
+      
+        <br> <input type="submit" value="Submit">
+    </form>
+
+    <div id="finalForm"></div>
+
+    <script>
+        const majors = {
+            "Arts, Humanities, and Social Sciences": [
+                "Associate of Art",
+                "Anthropology (DWD)",
+                // Add all majors here for AHSS
+            ],
+            // Add majors for other programs here
+        };
+
+        function populateMajors() {
+            var programSelect = document.getElementById("program");
+            var majorSelect = document.getElementById("major");
+            var selectedProgram = programSelect.value;
+            majorSelect.innerHTML = "";
+
+            majors[selectedProgram].forEach(function(major) {
+                var option = document.createElement("option");
+                option.text = major;
+                option.value = major;
+                majorSelect.add(option);
+            });
+        }
+
+        document.getElementById("program").addEventListener("change", populateMajors);
+
+        populateMajors();
+
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            var firstName = formData.get('firstname');
+            var lastName = formData.get('lastname');
+            var semester = formData.get('semester');
+            var date = formData.get('date');
+            var program = formData.get('program');
+            var major = formData.get('major');
+            var teamChanged = formData.get('teamchange');
+            var primaryAdvisor = "";
+
+            switch(program) {
+                // Add cases for each program here
+            }
+
+            var sentence = "CoM submitted for " + semester + " on " + date + "<br>";
+            sentence += "Requested change to: " + program + " - " + major + "<br>";
+            sentence += "Assigned: ";
+            if (teamChanged === "Yes") {
+                sentence += '"New Team" ' + primaryAdvisor;
+            } else {
+                sentence += '"Team Correct, No changes"';
+            }
+            sentence += "<br>";
+            sentence += firstName.charAt(0) +  lastName;
+
+            document.getElementById('finalForm').innerHTML = sentence;
+        });
+    </script>
+</body>
+</html>
