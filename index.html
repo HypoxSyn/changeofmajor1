@@ -123,41 +123,76 @@
         };
 
         // Function to populate the majors dropdown based on selected program
-        function populateMajors() {
-            var programSelect = document.getElementById("program");
-            var majorSelect = document.getElementById("major");
-            var selectedProgram = programSelect.value;
-            majorSelect.innerHTML = ""; // Clear previous options
+       function populateMajors(programIndex) {
+    var programSelect = document.getElementById(`program${programIndex}`);
+    var majorSelect = document.getElementById(`major${programIndex}`);
+    var selectedProgram = programSelect.value;
+    majorSelect.innerHTML = ""; // Clear previous options
 
-            // Add options based on selected program
-            majors[selectedProgram].forEach(function(major) {
-                var option = document.createElement("option");
-                option.text = major;
-                option.value = major;
-                majorSelect.add(option);
-            });
-        }
+    // Add options based on selected program
+    majors[selectedProgram].forEach(function(major) {
+        var option = document.createElement("option");
+        option.text = major;
+        option.value = major;
+        majorSelect.add(option);
+    });
+}
 
-        // Populate majors dropdown when program selection changes
-        document.getElementById("program").addEventListener("change", populateMajors);
+// Update program sections based on selected number of primary programs
+function updateProgramSections() {
+    const numPrograms = document.getElementById('numPrograms').value;
+    const programSections = document.getElementById('programSections');
 
-        // Populate majors dropdown initially
-        populateMajors();
+    // Clear any existing program sections
+    programSections.innerHTML = '';
 
-        // Event listener for form submission
-        document.getElementById('inputForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-            var formData = new FormData(this);
-            var firstName = formData.get('firstname');
-            var lastName = formData.get('lastname');
-            var semester = formData.get('semester');
-            var date = formData.get('date');
-            var program = formData.get('program');
-            var major = formData.get('major');
-            var teamChanged = formData.get('teamchange');
-            var primaryAdvisor = "";
+    for (let i = 1; i <= numPrograms; i++) {
+        const section = document.createElement('div');
+        const label = i === 1 ? 'Primary Program' : 'Secondary Major';
+        section.innerHTML = `
+            <label for="program${i}">${label}</label>
+            <select name="program${i}" id="program${i}" onchange="populateMajors(${i})">
+                <option value="Arts, Humanities, and Social Sciences">Arts, Humanities, and Social Sciences (AHSS)</option>
+                <option value="Business, Technology, and Public Service">Business, Technology, and Public Service (BTPS)</option>
+                <option value="Health Sciences">Health Sciences (HS)</option>
+                <option value="Science, Engineering, and Math">Science, Engineering, and Math (SEM)</option>
+                <option value="Technical and Professional Studies">Technical and Professional Studies (TPS)</option>
+            </select><br>
+        
+            <label for="major${i}">${label}</label>
+            <select name="major${i}" id="major${i}"></select><br>
+        `;
+        programSections.appendChild(section);
+        populateMajors(i);  // Initialize majors for the first program
+    }
+}
 
-            // Assign primary advisors based on program
+// Populate majors dropdown initially
+document.addEventListener('DOMContentLoaded', (event) => {
+    updateProgramSections();  // Initialize the form with the correct number of program sections
+});
+
+// Event listener for form submission
+document.getElementById('inputForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    var firstName = formData.get('firstname');
+    var lastName = formData.get('lastname');
+    var semester = formData.get('semester');
+    var date = formData.get('date');
+    var teamChanged = formData.get('teamchange');
+    var numPrograms = formData.get('numPrograms');
+    var primaryPrograms = [];
+    var primaryAdvisor = "";
+
+    // Collect all selected programs and majors
+    for (let i = 1; i <= numPrograms; i++) {
+        let program = formData.get(`program${i}`);
+        let major = formData.get(`major${i}`);
+        primaryPrograms.push(`${i}. ${program} - ${major}`);
+
+        // Assign primary advisor based on program for the first program
+        if (i === 1) {
             switch(program) {
                 case "Arts, Humanities, and Social Sciences":
                     primaryAdvisor = "Sarah Willis, Jayla Camacho";
@@ -177,21 +212,23 @@
                 default:
                     primaryAdvisor = "";
             }
+        }
+    }
 
-            // Construct the sentence
-            var sentence = "CoM submitted for " + semester + " on " + date + "<br>";
-            sentence += "Requested change to: " + program + " - " + major + "<br>";
-            sentence += "Assigned: ";
-            if (teamChanged === "Yes") {
-                sentence += '"New Team" ' + primaryAdvisor;
-            } else {
-                sentence += '"Team Correct, No changes"';
-            }
-            sentence += "<br>";
-            sentence += firstName.charAt(0) + lastName;
+    // Construct the sentence
+    var sentence = "CoM submitted for " + semester + " on " + date + "<br>";
+    sentence += "Requested changes to: <br>" + primaryPrograms.join("<br>") + "<br>";
+    sentence += "Assigned: ";
+    if (teamChanged === "Yes") {
+        sentence += '"New Team" ' + primaryAdvisor;
+    } else {
+        sentence += '"Team Correct, No changes"';
+    }
+    sentence += "<br>";
+    sentence += firstName.charAt(0) + lastName;
 
-            document.getElementById('finalForm').innerHTML = sentence;
-        });
+    document.getElementById('finalForm').innerHTML = sentence;
+});
     </script>
 </body>
 </html>
