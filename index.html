@@ -160,66 +160,112 @@
             ]
         };
 
-        function updateProgramSections() {
-            const numPrograms = document.getElementById('numPrograms').value;
-            const programSections = document.getElementById('programSections');
-            programSections.innerHTML = '';
+        function populateMajors(programIndex) {
+    var programSelect = document.getElementById(`program${programIndex}`);
+    var majorSelect = document.getElementById(`major${programIndex}`);
+    var selectedProgram = programSelect.value;
+    majorSelect.innerHTML = ""; // Clear previous options
 
-            for (let i = 0; i < numPrograms; i++) {
-                const div = document.createElement('div');
-                div.innerHTML = `
-                    <h3>Major ${i + 1}</h3>
-                    <label for="school${i + 1}">School</label>
-                    <select name="school${i + 1}" id="school${i + 1}" onchange="updateMajors(${i + 1})">
-                        <option value="">Select a school</option>
-                        ${Object.keys(majors).map(school => `<option value="${school}">${school}</option>`).join('')}
-                    </select><br>
+    // Add options based on selected program
+    majors[selectedProgram].forEach(function(major) {
+        var option = document.createElement("option");
+        option.text = major;
+        option.value = major;
+        majorSelect.add(option);
+    });
+}
 
-                    <label for="major${i + 1}">Major</label>
-                    <select name="major${i + 1}" id="major${i + 1}">
-                        <option value="">Select a major</option>
-                    </select><br>
-                `;
-                programSections.appendChild(div);
+// Update program sections based on selected number of primary programs
+function updateProgramSections() {
+    const numPrograms = document.getElementById('numPrograms').value;
+    const programSections = document.getElementById('programSections');
+
+    // Clear any existing program sections
+    programSections.innerHTML = '';
+
+    for (let i = 1; i <= numPrograms; i++) {
+        const section = document.createElement('div');
+        const label = i === 1 ? 'Primary Program' : 'Secondary Major';
+        section.innerHTML = `
+            <label for="program${i}">${label}</label>
+            <select name="program${i}" id="program${i}" onchange="populateMajors(${i})">
+                <option value="Arts, Humanities, and Social Sciences">Arts, Humanities, and Social Sciences (AHSS)</option>
+                <option value="Business, Technology, and Public Service">Business, Technology, and Public Service (BTPS)</option>
+                <option value="Health Sciences">Health Sciences (HS)</option>
+                <option value="Science, Engineering, and Math">Science, Engineering, and Math (SEM)</option>
+                <option value="Technical and Professional Studies">Technical and Professional Studies (TPS)</option>
+            </select><br>
+        
+            <label for="major${i}">${label}</label>
+            <select name="major${i}" id="major${i}"></select><br>
+        `;
+        programSections.appendChild(section);
+        populateMajors(i);  // Initialize majors for the first program
+    }
+}
+
+// Populate majors dropdown initially
+document.addEventListener('DOMContentLoaded', (event) => {
+    updateProgramSections();  // Initialize the form with the correct number of program sections
+});
+
+// Event listener for form submission
+document.getElementById('inputForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    var firstName = formData.get('firstname');
+    var lastName = formData.get('lastname');
+    var semester = formData.get('semester');
+    var date = formData.get('date');
+    var teamChanged = formData.get('teamchange');
+    var numPrograms = formData.get('numPrograms');
+    var primaryPrograms = [];
+    var primaryAdvisor = "";
+
+    // Collect all selected programs and majors
+    for (let i = 1; i <= numPrograms; i++) {
+        let program = formData.get(`program${i}`);
+        let major = formData.get(`major${i}`);
+        primaryPrograms.push(`${i}. ${program} - ${major}`);
+
+        // Assign primary advisor based on program for the first program
+        if (i === 1) {
+            switch(program) {
+                case "Arts, Humanities, and Social Sciences":
+                    primaryAdvisor = "Sarah Willis, Jayla Camacho";
+                    break;
+                case "Business, Technology, and Public Service":
+                    primaryAdvisor = "Alex Ward, Laura Quinn, Jack Grimm, Dakota Folkerts, Becca Fernandez";
+                    break;
+                case "Health Sciences":
+                    primaryAdvisor = "ReeAnn Hyde, Andrew Jordan, Sarah Mayer";
+                    break;
+                case "Science, Engineering, and Math":
+                    primaryAdvisor = "Jennifer Guajardo, Sara Divine, Amy Cymerman";
+                    break;
+                case "Technical and Professional Studies":
+                    primaryAdvisor = "Annie Landis, Desiree Bowlby, Lisa Rosenberg";
+                    break;
+                default:
+                    primaryAdvisor = "";
             }
         }
+    }
 
-        function updateMajors(programIndex) {
-            const schoolSelect = document.getElementById(`school${programIndex}`);
-            const majorSelect = document.getElementById(`major${programIndex}`);
-            const selectedSchool = schoolSelect.value;
+    // Construct the sentence
+    var sentence = "CoM submitted for " + semester + " on " + date + "<br>";
+    sentence += "Requested changes to: <br>" + primaryPrograms.join("<br>") + "<br>";
+    sentence += "Assigned: ";
+    if (teamChanged === "Yes") {
+        sentence += '"New Team" ' + primaryAdvisor;
+    } else {
+        sentence += '"Team Correct, No changes"';
+    }
+    sentence += "<br>";
+    sentence += firstName.charAt(0) + lastName;
 
-            majorSelect.innerHTML = '';
-            if (selectedSchool) {
-                majors[selectedSchool].forEach(major => {
-                    const option = document.createElement('option');
-                    option.value = major;
-                    option.textContent = major;
-                    majorSelect.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'Select a major';
-                majorSelect.appendChild(option);
-            }
-        }
-
-        document.getElementById('inputForm').addEventListener('submit', function(event) {
-            event.preventDefault();
-
-            const formData = new FormData(event.target);
-            const finalFormDiv = document.getElementById('finalForm');
-            let finalFormContent = '<h2>Final Form Data</h2>';
-
-            formData.forEach((value, key) => {
-                finalFormContent += `<p><strong>${key}:</strong> ${value}</p>`;
-            });
-
-            finalFormDiv.innerHTML = finalFormContent;
-        });
-
-        updateProgramSections();
+    document.getElementById('finalForm').innerHTML = sentence;
+});
     </script>
 </body>
 </html>
