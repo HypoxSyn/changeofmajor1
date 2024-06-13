@@ -3,16 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Example</title>
-    <link rel="stylesheet" type="text/css" href="styles.css">
+    <title>Student Change of Major Form</title>
     <style>
-        /* CSS styles */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
         }
-
         form {
             max-width: 400px;
             margin: 20px auto;
@@ -20,22 +17,13 @@
             border: 1px solid #ccc;
             border-radius: 5px;
         }
-
         label {
             display: block;
             margin-bottom: 5px;
         }
-
         input[type="text"],
         input[type="email"],
-        select {
-            width: calc(100% - 10px);
-            margin-bottom: 10px;
-            padding: 5px;
-            border: 1px solid #ccc;
-            border-radius: 3px;
-        }
-
+        select,
         input[type="date"] {
             width: calc(100% - 10px);
             margin-bottom: 10px;
@@ -43,7 +31,6 @@
             border: 1px solid #ccc;
             border-radius: 3px;
         }
-
         input[type="submit"] {
             width: 100%;
             padding: 10px;
@@ -53,11 +40,9 @@
             color: #fff;
             cursor: pointer;
         }
-
         input[type="submit"]:hover {
             background-color: #0056b3;
         }
-
         #finalForm {
             margin-top: 20px;
             padding: 10px;
@@ -68,13 +53,12 @@
     </style>
 </head>
 <body>
-    <!-- Form -->
     <form id="inputForm">
-        <center>Student Change of Major Form</center>
-        <label for="firstname">Staff First Name</label>
+        <center><h2>Student Change of Major Form</h2></center>
+        <label for="firstname">User First Name</label>
         <input type="text" id="firstname" name="firstname"><br>
 
-        <label for="lastname">Staff Last Name</label>
+        <label for="lastname">User Last Name</label>
         <input type="text" id="lastname" name="lastname"><br>
 
         <label for="semester">Semester</label>
@@ -87,17 +71,17 @@
         <label for="date">Date</label>
         <input type="date" id="date" name="date"><br>
 
-        <label for="program">Program</label>
-        <select name="program" id="program">
-            <option value="Arts, Humanities, and Social Sciences">Arts, Humanities, and Social Sciences (AHSS)</option>
-            <option value="Business, Technology, and Public Service">Business, Technology, and Public Service (BTPS)</option>
-            <option value="Health Sciences">Health Sciences (HS)</option>
-            <option value="Science, Engineering, and Math">Science, Engineering, and Math (SEM)</option>
-            <option value="Technical and Professional Studies">Technical and Professional Studies (TPS)</option>
+        <label for="numPrograms">Number of Majors</label>
+        <select name="numPrograms" id="numPrograms" onchange="updateProgramSections()">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
         </select><br>
 
-        <label for="major">Major</label>
-        <select name="major" id="major"></select><br>
+        <div id="programSections">
+            <!-- Program sections will be dynamically added here -->
+        </div>
 
         <label for="teamchange">Team Changed?</label>
         <select name="teamchange" id="teamchange">
@@ -108,127 +92,134 @@
         <input type="submit" value="Submit">
     </form>
 
-    <!-- Final Form Display -->
     <div id="finalForm"></div>
 
-    <!-- JavaScript -->
     <script>
-        // JavaScript to populate the major dropdown based on selected program
+        // Define majors for each program
         const majors = {
-            "Arts, Humanities, and Social Sciences": ["Associate of Art", "Anthropology (DWD)", "Art History (DWD)", "Studio Art (DWD)", "Communication (DWD)", "Dance (DWD)", "English (DWD)", "French (DWD)", "History (DWD)", "Humanities", "Journalism (DWD)", "Music (DWD)", "Philosophy (DWD)", "Political Science (DWD)", "Professional/Technical Writing", "Psychology AA (DWD)", "Psychology AS (DWD)", "Sociology (DWD)", "Spanish (DWD)", "Theatre (DWD)", "World Languages"],
-            "Business, Technology, and Public Service": ["Business (DWD)", "Computer Science (DWD)", "Criminal Justice (DWD)", "Early Childhood Education (DWD)", "Economics (DWD)", "Elementary Education (DWD)", "K-12 Education", "Secondary Education", "Social Work Transfer", "Special Education", "Emergency Management & Planning", "Emergency Services Administration Track", "Hospitality (AGS)", "Accounting", "Cert - Accounting", "Cert - Finance and Banking", "Cert - Bookkeeping Applications", "Business Administration - Administrative Support", "Business Administration - Management", "Business Administration - Social Innovation", "Cert - Administrative Assistant", "Cert - Management", "Cert - Business Foundations", "Cert - Social Innovation", "Computer Information Systems", "Cert - Computer Application Specialist", "Cert - Computer Support Technician", "Cert - Database", "Cert - Programming", "Computer Networking Technology", "Cert - Cisco Networking Technology", "Cert - Computer Networking", "Cert - Network +", "Cert - Cyber Security", "Cyber Security", "Cert - CCNA", "Cert - Cisco Certified Network Associate", "Criminal Justice", "Cert - Basic Criminology", "Cert - Basic Investigations", "Cert - Behavior Studies", "Cert - Criminal Justice Basic", "Culinary Arts - Culinary Arts", "Culinary Arts - Baking & Pastry", "Culinary Arts - Food Service Management", "Culinary Arts - Sustainability Management and Dietary Cuisine", "Cert - Advanced Culinary", "Cert - Baker Production", "Cert - Baking", "Cert - Basic Skills", "Cert - Culinary Arts", "Cert - Culinary Production", "Cert - Food Service Management", "Cert - Pastry", "Cert - Pastry Decorator", "Cert - Restaurant Manager", "Cert - Restaurant Marketing", "Cert - Sustainability Management and Dietary Cuisine", "Early Childhood Education", "Cert - Basic Skills", "Cert - Director", "Cert - Early Childhood Assistant Teacher", "Cert - Early Childhood Teacher", "Cert - Infant Toddler", "Fire Science Technology", "Fire Science Management", "Fire Science Wildland", "Cert - Basic Firefighter", "Cert - Intermediate Firefighter", "Cert - Advanced Firefighter", "Hospitality (AAS)", "Paralegal/Legal Assistant", "Cert - Legal Technician", "Social Services Technician", "Cert - Child Welfare", "Cert - Gerontological", "Cert - Social Services", "Cert - Substance Abuse", "BAS: Emergency Services Administration"],
-            "Health Sciences": ["Pre-Dental Hygiene", "Medical Diagnostics (Sonography, Ultrasound, etc.)", "Pre-Allied Health Pathway (Physical/Occupational Therapist, Physician's Asst., etc.)", "Medical Professionals Pathway (Doctor, Dentist, Veterinarian, Pharmacist, Psychiatrist, Radiologist, Sports Medicine)", "Nursing Track", "Radiology Tech Track", "Allied Health", "Dental Assistant", "Cert - Dental Assisting", "Emergency Medical Services - Paramedic", "Cert - Paramedic", "Emergency Medical Technician", "Cert - EMT", "Cert - EMT Refresher (EMS 1026)", "Cert - Enhanced Cirriculum", "Cert- Advanced EMT", "Medical Assistant", "Cert - Medical Assistant", "Cert - Medical Coding Specialist", "Cert - Medical Office Admin", "Cert - Phlebotomy", "Nursing: Registered Nurse", "Nursing: LPN Advanced Placement", "Cert - Nursing Assistant", "Pharmacy Technician", "Cert - Pharmacy Technician", "Cert- Advanced Pharmacy Practice", "Physical Therapy Assistant", "Radiologic Technology", "Surgical Technology", "Sterile Processing Technology", "BAS: Advanced Paramedic Practitioner"],
-            "Science, Engineering, and Math": ["Associate of Science", "Biology (DWD)", "Chemistry (DWD)", "Dietetics/Nutrition", "Environmental Sustainability Studies", "Environmental Science", "Geography (DWD)", "Geology (DWD)", "Mathematics (DWD)", "Physics (DWD)", "Public Health (DWD)", "Pre-Engineering", "Mechanical Engineering", "Associate of General Studies", "Undeclared", "Non-Degree Seeking", "Health, Wellness, and Fitness", "Cert - Health and Wellness Coach Prep", "Cert - Personal Trainer Certification", "Cert - Yoga Teacher Certification Prep", "Veterinary Technology", "Cert - Veterinary Assistant", "Zoo Keeping Technology", "Cert - Core Animal Care"],
-            "Technical and Professional Studies": ["Architecture and Construction: Architectural Engineer Tech", "Architecture and Construction: Construction Management Tech", "Architecture and Construction: Product Representative", "Cert - Architecture Professional", "Cert - Basic AEC Drafting", "Cert - Construction Professional", "Automotive Collision Technology: Collision", "Automotive Collision Technology: Customizing", "Automotive Collision Technology: Estimating", "Automotive Collision Technology: Mechanical", "Automotive Collision Technology: Refinish", "Cert - Automotive Plastics Repair Technician", "Cert - Customizing Technician", "Cert - Estimating & Blueprint Technician", "Cert - Non-structural Repair Technician", "Cert - Refinish Prep Technician", "Cert - Refinish Technician", "Cert - R & I Technician", "Automotive Technology", "Cert - Air Conditioning and Heating", "Cert - Automatic Transmission", "Cert - Automotive Brakes", "Cert - Automotive Electricity", "Cert - Automotive Parts", "Cert - Automotive Technology", "Cert - Engine Performance", "Cert - Gasoline Engine Repair", "Cert - Manual Drivetrain", "Cert - Suspension and Steering", "Building & Construction Technology: Carpentry", "Building & Construction Technology: Electrical", "Cert - Carpentry Advanced Applications", "Cert - Carpentry Fundamentals", "Cert - Electrical Advanced Applications", "Cert - Electrical Fundamentals", "Computer Aided Drafting: Robotics and Automation", "Cert - Professional CAD Robotics", "Computer Aided Drafting: HVAC", "Computer Aided Drafting: Mechanical", "Cert - Acvanced CAD Technical Skills", "Cert - Basic CAD Skills", "Cert - CAD Quality Assurance", "Cert - CAD Skills for Interiors", "Cert - Modeling Design", "Cert - Professional CAD Architecture", "Cert - Professional CAD Interior Design", "Cert - Professional CAD Mechanical", "Cert - Revit Skills", "Cert - Advanced SolidWork Skills", "Diesel Technology", "Cert - Diesel Engine Performance", "Cert - Diesel Engine Repair", "Cert - Diesel Fuel Injection", "Heating, Air Conditioning, and Refrigeration Technology", "Cert - Direct Digital Controls", "Cert - Industry Upgrade", "Cert - Residential HVAC", "Machining: Advanced Manufacturing", "Machining: Machining Technology", "Cert - Basic Machining Technology", "Cert - Advanced Machining Technology", "Cert - Basic Manufacturing Machining", "Cert - Intermediate Manufacturing Machining", "Cert - CNC Machining", "Cert - Advanced Manufacturing Machining", "Cert - Machining for Welders", "Multimedia Graphic Design", "Cert - Design to Print", "Cert - Digital Image", "Cert - Foundations of MGD", "Cert - Illustration", "Cert - Video Production and Editing", "Cert - Web Design", "Radio & Television/Broadcasting & Electronic Media", "Cert - Advanced Radio Production and Operations", "Cert - Advanced Television and Video Production", "Cert - Basic Radio Production", "Cert - Basic Television Production", "Robotics/Electronics Technology", "Cert - Advanced Manufacturing Electronics", "Cert - Automated Systems", "Cert - Basic Automation", "Cert - Basic Electronics", "Cert - Basic ICP Soldering", "Cert - Intermediate Electronics", "Cert - Electronic Assembly", "Cert - Robotic Technology", "Sign Language Interpreter Prep", "Cert - Basic ASL Skills", "Welding", "Cert - Entry Level Welding", "Cert - Shielded Metal Arc Welding (SMAW)", "Cert - Gas Metal Arc Welding (GMAW)", "Cert - Gas Tungsten Arc Welding (GTAW)"]
+            "Arts, Humanities, and Social Sciences": [
+                "Associate of Art", "Anthropology (DWD)", "Art History (DWD)", "Studio Art (DWD)",
+                "Communication (DWD)", "Dance (DWD)", "English (DWD)", "French (DWD)", "History (DWD)",
+                "Humanities", "Journalism (DWD)", "Music (DWD)", "Philosophy (DWD)", "Political Science (DWD)",
+                "Professional/Technical Writing", "Psychology AA (DWD)", "Psychology AS (DWD)",
+                "Sociology (DWD)", "Spanish (DWD)", "Theatre (DWD)", "World Languages"
+            ],
+            "Business, Technology, and Public Service": [
+                "Business (DWD)", "Computer Science (DWD)", "Criminal Justice (DWD)", "Early Childhood Education (DWD)",
+                "Economics (DWD)", "Elementary Education (DWD)", "K-12 Education", "Secondary Education",
+                "Social Work Transfer", "Special Education", "Emergency Management & Planning",
+                "Emergency Services Administration Track", "Hospitality (AGS)", "Accounting", "Cert - Accounting",
+                "Cert - Finance and Banking", "Cert - Bookkeeping Applications", "Business Administration - Administrative Support",
+                "Business Administration - Management", "Business Administration - Social Innovation", "Cert - Administrative Assistant",
+                "Cert - Management", "Cert - Business Foundations", "Cert - Social Innovation", "Computer Information Systems",
+                "Cert - Computer Application Specialist", "Cert - Computer Support Technician", "Cert - Database", "Cert - Programming",
+                "Computer Networking Technology", "Cert - Cisco Networking Technology", "Cert - Computer Networking", "Cert - Network +",
+                "Cert - Cyber Security", "Cyber Security", "Cert - CCNA", "Cert - Cisco Certified Network Associate", "Criminal Justice",
+                "Cert - Basic Criminology", "Cert - Basic Investigations", "Cert - Behavior Studies", "Cert - Criminal Justice Basic",
+                "Culinary Arts - Culinary Arts", "Culinary Arts - Baking & Pastry", "Culinary Arts - Food Service Management",
+                "Culinary Arts - Sustainability Management and Dietary Cuisine", "Cert - Advanced Culinary", "Cert - Baker Production",
+                "Cert - Baking", "Cert - Basic Skills", "Cert - Culinary Arts", "Cert - Culinary Production", "Cert - Food Service Management",
+                "Cert - Pastry", "Cert - Pastry Decorator", "Cert - Restaurant Manager", "Cert - Restaurant Marketing", "Cert - Sustainability Management and Dietary Cuisine",
+                "Early Childhood Education", "Cert - Basic Skills", "Cert - Director", "Cert - Early Childhood Assistant Teacher",
+                "Cert - Early Childhood Teacher", "Cert - Infant Toddler", "Fire Science Technology", "Fire Science Management",
+                "Fire Science Wildland", "Cert - Basic Firefighter", "Cert - Intermediate Firefighter", "Cert - Advanced Firefighter",
+                "Hospitality (AAS)", "Paralegal/Legal Assistant", "Cert - Legal Technician", "Social Services Technician", "Cert - Child Welfare",
+                "Cert - Gerontological", "Cert - Social Services", "Cert - Substance Abuse", "BAS: Emergency Services Administration"
+            ],
+            "Health Sciences": [
+                "Pre-Dental Hygiene", "Medical Diagnostics (Sonography, Ultrasound, etc.)", "Pre-Allied Health Pathway (Physical/Occupational Therapist, Physician's Asst., etc.)",
+                "Medical Professionals Pathway (Doctor, Dentist, Veterinarian, Pharmacist, Psychiatrist, Radiologist, Sports Medicine)", "Nursing Track", "Radiology Tech Track",
+                "Allied Health", "Dental Assistant", "Cert - Dental Assisting", "Emergency Medical Services - Paramedic", "Cert - Paramedic",
+                "Emergency Medical Technician", "Cert - EMT", "Cert - EMT Refresher (EMS 1026)", "Cert - Enhanced Curriculum", "Cert- Advanced EMT",
+                "Medical Assistant", "Cert - Medical Assistant", "Cert - Medical Coding Specialist", "Cert - Medical Office Admin", "Cert - Phlebotomy",
+                "Nursing: Registered Nurse", "Nursing: LPN Advanced Placement", "Cert - Nursing Assistant", "Pharmacy Technician", "Cert - Pharmacy Technician",
+                "Cert- Advanced Pharmacy Practice", "Physical Therapy Assistant", "Radiologic Technology", "Surgical Technology", "Sterile Processing Technology",
+                "BAS: Advanced Paramedic Practitioner"
+            ],
+            "Science, Engineering, and Math": [
+                "Associate of Science", "Biology (DWD)", "Chemistry (DWD)", "Dietetics/Nutrition", "Environmental Sustainability Studies",
+                "Environmental Science", "Geography (DWD)", "Geology (DWD)", "Mathematics (DWD)", "Physics (DWD)", "Public Health (DWD)", "Pre-Engineering",
+                "Mechanical Engineering", "Associate of General Studies", "Undeclared", "Non-Degree Seeking", "Health, Wellness, and Fitness",
+                "Cert - Health and Wellness Coach Prep", "Cert - Personal Trainer Certification", "Cert - Yoga Teacher Certification Prep",
+                "Veterinary Technology", "Cert - Veterinary Assistant", "Zoo Keeping Technology", "Cert - Core Animal Care"
+            ],
+            "Technical and Professional Studies": [
+                "Architecture and Construction: Architectural Engineer Tech", "Architecture and Construction: Construction Management Tech",
+                "Architecture and Construction: Product Representative", "Cert - Architecture Professional", "Cert - Basic AEC Drafting",
+                "Cert - Construction Professional", "Automotive Collision Technology: Collision", "Automotive Collision Technology: Customizing",
+                "Automotive Collision Technology: Estimating", "Automotive Collision Technology: Mechanical", "Automotive Collision Technology: Refinish",
+                "Cert - Automotive Plastics Repair Technician", "Cert - Customizing Technician", "Cert - Estimating & Blueprint Technician",
+                "Cert - Non-structural Repair Technician", "Cert - Refinish Prep Technician", "Cert - Refinish Technician", "Cert - R & I Technician",
+                "Automotive Technology", "Cert - Brake & Suspension Technician", "Cert - Driveability Technician", "Cert - Driveline Technician",
+                "Cert - Electrical & Electronics Technician", "Cert - Transmission Technician", "Diesel Power Mechanics", "Cert - Diesel Engine Repair Technician",
+                "Cert - Diesel Power Mechanics Technician", "Cert - Hydraulics Technician", "CAD & 3D Technologies", "Cert - 3D Technician", "Cert - CAD Technician",
+                "Cert - Digital Design Technician", "Engineering Graphics Technology", "Cert - Engineering Graphics Technician", "Cert - Graphics Production Technician",
+                "Machine Technologies", "Cert - Basic Machine Technician", "Cert - CNC Manufacturing Technician", "Cert - Intermediate Machine Technician",
+                "Cert - Production Technician", "Cert - Technical Mathematics", "Welding Technology", "Cert - Basic Welding", "Cert - Intermediate Welding",
+                "Cert - Advanced Welding", "Cert - Fabrication Welding"
+            ]
         };
 
-        // Function to populate the majors dropdown based on selected program
-       function populateMajors(programIndex) {
-    var programSelect = document.getElementById(`program${programIndex}`);
-    var majorSelect = document.getElementById(`major${programIndex}`);
-    var selectedProgram = programSelect.value;
-    majorSelect.innerHTML = ""; // Clear previous options
+        function updateProgramSections() {
+            const numPrograms = document.getElementById('numPrograms').value;
+            const programSections = document.getElementById('programSections');
+            programSections.innerHTML = '';
 
-    // Add options based on selected program
-    majors[selectedProgram].forEach(function(major) {
-        var option = document.createElement("option");
-        option.text = major;
-        option.value = major;
-        majorSelect.add(option);
-    });
-}
+            for (let i = 0; i < numPrograms; i++) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <h3>Major ${i + 1}</h3>
+                    <label for="school${i + 1}">School</label>
+                    <select name="school${i + 1}" id="school${i + 1}" onchange="updateMajors(${i + 1})">
+                        <option value="">Select a school</option>
+                        ${Object.keys(majors).map(school => `<option value="${school}">${school}</option>`).join('')}
+                    </select><br>
 
-// Update program sections based on selected number of primary programs
-function updateProgramSections() {
-    const numPrograms = document.getElementById('numPrograms').value;
-    const programSections = document.getElementById('programSections');
-
-    // Clear any existing program sections
-    programSections.innerHTML = '';
-
-    for (let i = 1; i <= numPrograms; i++) {
-        const section = document.createElement('div');
-        const label = i === 1 ? 'Primary Program' : 'Secondary Major';
-        section.innerHTML = `
-            <label for="program${i}">${label}</label>
-            <select name="program${i}" id="program${i}" onchange="populateMajors(${i})">
-                <option value="Arts, Humanities, and Social Sciences">Arts, Humanities, and Social Sciences (AHSS)</option>
-                <option value="Business, Technology, and Public Service">Business, Technology, and Public Service (BTPS)</option>
-                <option value="Health Sciences">Health Sciences (HS)</option>
-                <option value="Science, Engineering, and Math">Science, Engineering, and Math (SEM)</option>
-                <option value="Technical and Professional Studies">Technical and Professional Studies (TPS)</option>
-            </select><br>
-        
-            <label for="major${i}">${label}</label>
-            <select name="major${i}" id="major${i}"></select><br>
-        `;
-        programSections.appendChild(section);
-        populateMajors(i);  // Initialize majors for the first program
-    }
-}
-
-// Populate majors dropdown initially
-document.addEventListener('DOMContentLoaded', (event) => {
-    updateProgramSections();  // Initialize the form with the correct number of program sections
-});
-
-// Event listener for form submission
-document.getElementById('inputForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    var formData = new FormData(this);
-    var firstName = formData.get('firstname');
-    var lastName = formData.get('lastname');
-    var semester = formData.get('semester');
-    var date = formData.get('date');
-    var teamChanged = formData.get('teamchange');
-    var numPrograms = formData.get('numPrograms');
-    var primaryPrograms = [];
-    var primaryAdvisor = "";
-
-    // Collect all selected programs and majors
-    for (let i = 1; i <= numPrograms; i++) {
-        let program = formData.get(`program${i}`);
-        let major = formData.get(`major${i}`);
-        primaryPrograms.push(`${i}. ${program} - ${major}`);
-
-        // Assign primary advisor based on program for the first program
-        if (i === 1) {
-            switch(program) {
-                case "Arts, Humanities, and Social Sciences":
-                    primaryAdvisor = "Sarah Willis, Jayla Camacho";
-                    break;
-                case "Business, Technology, and Public Service":
-                    primaryAdvisor = "Alex Ward, Laura Quinn, Jack Grimm, Dakota Folkerts, Becca Fernandez";
-                    break;
-                case "Health Sciences":
-                    primaryAdvisor = "ReeAnn Hyde, Andrew Jordan, Sarah Mayer";
-                    break;
-                case "Science, Engineering, and Math":
-                    primaryAdvisor = "Jennifer Guajardo, Sara Divine, Amy Cymerman";
-                    break;
-                case "Technical and Professional Studies":
-                    primaryAdvisor = "Annie Landis, Desiree Bowlby, Lisa Rosenberg";
-                    break;
-                default:
-                    primaryAdvisor = "";
+                    <label for="major${i + 1}">Major</label>
+                    <select name="major${i + 1}" id="major${i + 1}">
+                        <option value="">Select a major</option>
+                    </select><br>
+                `;
+                programSections.appendChild(div);
             }
         }
-    }
 
-    // Construct the sentence
-    var sentence = "CoM submitted for " + semester + " on " + date + "<br>";
-    sentence += "Requested changes to: <br>" + primaryPrograms.join("<br>") + "<br>";
-    sentence += "Assigned: ";
-    if (teamChanged === "Yes") {
-        sentence += '"New Team" ' + primaryAdvisor;
-    } else {
-        sentence += '"Team Correct, No changes"';
-    }
-    sentence += "<br>";
-    sentence += firstName.charAt(0) + lastName;
+        function updateMajors(programIndex) {
+            const schoolSelect = document.getElementById(`school${programIndex}`);
+            const majorSelect = document.getElementById(`major${programIndex}`);
+            const selectedSchool = schoolSelect.value;
 
-    document.getElementById('finalForm').innerHTML = sentence;
-});
+            majorSelect.innerHTML = '';
+            if (selectedSchool) {
+                majors[selectedSchool].forEach(major => {
+                    const option = document.createElement('option');
+                    option.value = major;
+                    option.textContent = major;
+                    majorSelect.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'Select a major';
+                majorSelect.appendChild(option);
+            }
+        }
+
+        document.getElementById('inputForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const formData = new FormData(event.target);
+            const finalFormDiv = document.getElementById('finalForm');
+            let finalFormContent = '<h2>Final Form Data</h2>';
+
+            formData.forEach((value, key) => {
+                finalFormContent += `<p><strong>${key}:</strong> ${value}</p>`;
+            });
+
+            finalFormDiv.innerHTML = finalFormContent;
+        });
+
+        updateProgramSections();
     </script>
 </body>
 </html>
